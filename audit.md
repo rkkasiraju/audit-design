@@ -359,3 +359,60 @@ The implementation is complete when:
 * Users can inspect the history from the rule details screen without modifying audit records.
 
 Final recommendation: Do not start by changing all your JPA entities or adding columns to business tables. First inspect the current SQL Server audit schema and transaction boundaries. Then implement Change ID propagation, extend the triggers, add business-level change detection, and build the historical backfill. This approach minimizes changes to the existing rule engine while providing a reliable audit trail.
+
+This mockup keeps your existing Rule Details and Rule Conditions layout intact, with an Angular Material-style drawer opening from the right.
+
+The main design choices are:
+
+* Right-side mat-drawer: The rule remains visible in the background, so users retain context.
+* Search: Search audit history by action, condition, field name, or comment.
+* Date range: Filter records using From and To dates.
+* Additional filters: Filter by user and change type, with newest-first sorting.
+* Grouped audit events: Show one entry per logical save operation, with expandable details for overall Match changes, group Match changes, condition additions/removals, field-level updates, and reordering.
+* Consistent styling: Reuse your existing application’s Angular Material controls, spacing, typography, and blue accents.
+
+Implementation recommendation: Build this as a reusable RuleAuditHistoryComponent inside a right-side mat-drawer. Keep search and filters in the drawer header, the audit event list scrollable independently, and the detailed change summary expandable within each event.
+
+
+I recommend the following behavior when a user clicks View details in the Audit History drawer. The design stays consistent with your existing Angular Material UI.
+
+Mockup options
+
+Option 1 — Expand the audit event inline
+
+Expand the selected event within the existing drawer. Show the summary, changed fields, and previous/new values.
+
+Recommended default
+
+Best for quickly reviewing a small number of changes without losing the filtered history list.
+
+Option 2 — Replace drawer content with detailed view
+
+Clicking View details opens a dedicated detail view inside the same drawer, with a Back arrow to return to the filtered history list.
+
+Best for complex Multi-Group changes with several nested conditions.
+
+Option 3 — Detailed change comparison
+
+Display a structured table with field name, previous value, new value, and operation.
+
+Best for investigating large rule changes or reviewing several condition modifications together.
+
+What should View details show for your rule design?
+
+For a single condition update:
+
+Field	Previous value	New value
+Operator	Less than	Less than or equals
+Associated Value	25	25
+
+For a Multi-Group update, show the group-level Match change first, followed by the nested condition changes.
+
+* Group Match: All → Any
+* Conditions added
+* Conditions removed
+* Conditions modified
+* Condition order changes, if applicable
+
+My recommendation: Use Option 1 for simple changes and Option 2 for complex Multi-Group changes. Keep the date filters and search results available when users navigate back, so they don’t have to repeat their search.
+
